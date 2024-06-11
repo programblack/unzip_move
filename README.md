@@ -1,145 +1,55 @@
-ZIP Extractor with SQLite Integration
-This Python script is designed to extract encrypted ZIP files and store information about these files in an SQLite database. The script checks if the ZIP file is already present in the database and only extracts new files.
+استخراج فایل‌های ZIP با استفاده از پایتون و ذخیره‌سازی در دیتابیس SQLite
 
-Features
-Database Integration: Uses SQLite to keep track of processed ZIP files.
-Password Handling: Attempts to extract ZIP files with a list of potential passwords.
-File Validation: Ensures that the files are valid ZIP files before processing.
-Error Handling: Skips files that cannot be processed and optionally deletes them based on user input.
-Requirements
-Python 3.x
-pyzipper library
-sqlite3 library (included with Python)
-Installation
-Clone the Repository:
+این اسکریپت پایتون برای استخراج فایل‌های ZIP رمزگذاری شده و ذخیره‌سازی اطلاعات این فایل‌ها در یک دیتابیس SQLite طراحی شده است. این اسکریپت بررسی می‌کند که آیا فایل ZIP قبلاً در دیتابیس موجود است و تنها فایل‌های جدید را استخراج می‌کند.
 
-sh
-Copy code
-git clone https://github.com/yourusername/zip-extractor.git
-cd zip-extractor
-Install Dependencies:
+ویژگی‌ها:
+- یکپارچه‌سازی با دیتابیس: استفاده از SQLite برای نگهداری اطلاعات فایل‌های پردازش شده.
+- مدیریت رمز عبور: تلاش برای استخراج فایل‌های ZIP با استفاده از یک لیست از رمزهای عبور.
+- اعتبارسنجی فایل: اطمینان از معتبر بودن فایل‌های ZIP قبل از پردازش.
+- مدیریت خطا: نادیده گرفتن فایل‌هایی که نمی‌توان پردازش کرد و حذف آن‌ها بر اساس ورودی کاربر.
 
-sh
-Copy code
-pip install pyzipper
-Usage
-Prepare the Output Directory:
+پیش‌نیازها:
+- پایتون 3.x
+- کتابخانه pyzipper
+- کتابخانه sqlite3 (به صورت پیش‌فرض با پایتون نصب است)
 
-Set the path for the output directory where the files will be extracted. Replace path_to_output_directory in the script with your desired path.
-Run the Script:
+نصب:
+1. کلون کردن مخزن:
+   git clone https://github.com/yourusername/zip-extractor.git
+   cd zip-extractor
 
-sh
-Copy code
-python script.py
-Script Overview
-Database Setup
-The script connects to an SQLite database (example.db) and creates a table (users) if it does not exist.
+2. نصب وابستگی‌ها:
+   pip install pyzipper
 
-python
-Copy code
-conn = sqlite3.connect('example.db')
-cursor = conn.cursor()
+استفاده:
+1. آماده‌سازی دایرکتوری خروجی:
+   مسیر دایرکتوری خروجی را که فایل‌ها در آن استخراج می‌شوند تنظیم کنید. مقدار path_to_output_directory را در اسکریپت با مسیر مورد نظر خود جایگزین کنید.
 
-cursor.execute('''CREATE TABLE IF NOT EXISTS users
-                  (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)''')
-conn.commit()
-Password List
-A list of passwords to try when extracting ZIP files.
+2. اجرای اسکریپت:
+   python script.py
 
-python
-Copy code
-List_passwords = ["@Anime_Sekia", "TakAnime", "AnimeNin", "123", "Mangamon"]
-File Validation
-Checks if a file is a valid ZIP file by reading its signature.
+مروری بر اسکریپت:
+- تنظیم دیتابیس: اسکریپت به دیتابیس SQLite (example.db) متصل شده و یک جدول (users) ایجاد می‌کند اگر وجود نداشته باشد.
+- لیست رمزهای عبور: یک لیست از رمزهای عبور برای امتحان کردن روی فایل‌های زیپ.
+- اعتبارسنجی فایل: بررسی می‌کند که آیا فایل دارای امضای ZIP است یا خیر.
+- استخراج فایل‌های زیپ: تلاش می‌کند فایل زیپ را با استفاده از لیست رمزهای عبور استخراج کند.
+- حذف فایل زیپ: فایل زیپ را حذف می‌کند.
+- پیدا کردن فایل‌های زیپ: تمامی فایل‌های زیپ موجود در دایرکتوری جاری را پیدا می‌کند.
+- بررسی وجود فایل در دیتابیس: بررسی می‌کند که آیا نام فایل زیپ در دیتابیس موجود است یا خیر.
+- پردازش فایل‌های زیپ: هر فایل زیپ را پردازش می‌کند: بررسی می‌کند که آیا معتبر است و در دیتابیس موجود نیست، سپس تلاش برای استخراج آن.
 
-python
-Copy code
-def is_zipfile(file_path):
-    try:
-        with open(file_path, 'rb') as f:
-            signature = f.read(4)
-        return signature == b'PK\x03\x04'
-    except:
-        return False
-Extract ZIP Files
-Attempts to extract a ZIP file using a list of passwords.
+اجرا
+مسیر خروجی را تنظیم کرده، فایل‌های زیپ را پیدا کرده و آن‌ها را پردازش می‌کند.
 
-python
-Copy code
-def extract_zip(zip_file, output_dir, passwords):
-    try:
-        with pyzipper.AESZipFile(zip_file, 'r', compression=pyzipper.ZIP_STORED) as zip_ref:
-            for password in passwords:
-                try:
-                    zip_ref.setpassword(password.encode('utf-8'))
-                    zip_ref.extractall(output_dir)
-                    print(f"Extraction completed successfully with password: {password}")
-                    return True
-                except RuntimeError:
-                    print(f"Failed with password: {password}")
-        return False
-    except pyzipper.zipfile.BadZipFile:
-        print(f"Error: '{zip_file}' is not a valid zip file.")
-        return False
-Delete ZIP File
-Deletes the specified ZIP file.
-
-python
-Copy code
-def delete_zip(zip_file):
-    os.remove(zip_file)
-    print("File deleted")
-Find ZIP Files
-Finds all ZIP files in the current directory.
-
-python
-Copy code
-def find_zip_files():
-    return [f for f in os.listdir() if f.endswith('.zip')]
-Check if File is in Database
-Checks if the file name is already in the database.
-
-python
-Copy code
-def is_file_in_db(file_name):
-    cursor.execute("SELECT 1 FROM users WHERE name = ?", (file_name,))
-    return cursor.fetchone() is not None
-Process ZIP Files
-Processes each ZIP file: checks if it’s valid, not already in the database, then attempts to extract it.
-
-python
-Copy code
-def process_zip_files(zip_files, output_directory, passwords):
-    for zip_file in zip_files:
-        if not is_zipfile(zip_file):
-            print(f"Skipping '{zip_file}': not a valid zip file.")
-            continue
-
-        if is_file_in_db(zip_file):
-            print(f"Skipping '{zip_file}': already in database.")
-            continue
-        
-        cursor.execute("INSERT INTO users (name, age) VALUES (?, ?)", (zip_file, 0))
-        conn.commit()
-
-        success = extract_zip(zip_file, output_directory, passwords)
-        if not success:
-            delorno = input("Failed to extract. Delete file? (yes/no): ")
-            if delorno.lower() == "yes":
-                delete_zip(zip_file)
-Execution
-Sets the output directory, finds ZIP files, and processes them.
-
-python
-Copy code
 output_directory = "path_to_output_directory"
 zip_files = find_zip_files()
 process_zip_files(zip_files, output_directory, List_passwords)
 conn.close()
-Contributing
-Feel free to contribute to this project by creating a pull request or opening an issue on GitHub.
 
-License
-This project is licensed under the MIT License.
+مشارکت
+برای مشارکت در این پروژه می‌توانید یک pull request ایجاد کنید یا یک issue در GitHub باز کنید.
 
-Replace path_to_output_directory with the actual path where you want to extract the ZIP files. The script will skip already processed files and will ask for user confirmation before deleting any file that fails to extract.
+مجوز
+این پروژه تحت مجوز MIT است.
+
+مقدار path_to_output_directory را با مسیر واقعی که می‌خواهید فایل‌های ZIP در آن استخراج شوند جایگزین کنید. اسکریپت فایل‌های پردازش شده را رد می‌کند و از کاربر قبل از حذف هر فایلی که استخراج نشده است، تأیید می‌گیرد.
