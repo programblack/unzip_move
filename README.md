@@ -16,7 +16,6 @@
 نصب:
 1. کلون کردن مخزن:
    git clone https://github.com/programblack/unzip_move.git
-   cd zip-extractor
 
 2. نصب وابستگی‌ها:
    pip install pyzipper
