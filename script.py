@@ -12,7 +12,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS users
 conn.commit()
 
 # لیست رمزهای عبور برای امتحان کردن روی فایل‌های زیپ
-List_passwords = ["@Anime_Sekia", "TakAnime", "AnimeNin", "123", "Mangamon"]
+List_passwords = ["yor","list","passwords"]
 
 # تابع برای بررسی اینکه آیا فایل واقعاً یک فایل زیپ است یا خیر
 def is_zipfile(file_path):
@@ -59,6 +59,9 @@ def process_zip_files(zip_files, output_directory, passwords):
     for zip_file in zip_files:
         if not is_zipfile(zip_file):
             print(f"Skipping '{zip_file}': not a valid zip file.")
+            delorno = input("Failed to extract. Delete file? (yes/no): ")
+            if delorno.lower() == "yes":
+                delete_zip(zip_file)
             continue
 
         if is_file_in_db(zip_file):
